@@ -1,0 +1,61 @@
+# Development files
+.vscode/**
+.vscode-test/**
+.kiro/**
+
+# Source files (only include compiled dist/)
+src/**
+tests/**
+
+# Build and config files
+node_modules/**
+esbuild.config.js
+tsconfig.json
+vitest.config.ts
+
+# Linting and formatting
+.eslintrc.json
+.prettierrc.json
+
+# Git files
+.git/**
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/**
+
+# Test and coverage
+coverage/**
+*.test.ts
+*.spec.ts
+
+# Documentation (exclude except README and CHANGELOG)
+*.md
+!README.md
+!CHANGELOG.md
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Package files
+*.vsix
+
+# Lock files (keep package.json but not lock files)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Editor specific
+*.swp
+*.swo
+*~
+.idea/**
+
+# Misc
+.editorconfig
+
