@@ -3,7 +3,6 @@
  */
 
 import {
-    ASTNode,
     ASTNodeType,
     Program,
     FunctionDecl,
@@ -46,7 +45,7 @@ export class WGSLParser {
      */
     parse(source: string): ParseResult {
         this.errors = [];
-        
+
         try {
             const tokenizer = new Tokenizer(source);
             const tokens = tokenizer.tokenize();
@@ -120,8 +119,8 @@ export class WGSLParser {
         }
 
         // Variable declaration
-        if (this.stream.match(TokenType.Var) || 
-            this.stream.match(TokenType.Let) || 
+        if (this.stream.match(TokenType.Var) ||
+            this.stream.match(TokenType.Let) ||
             this.stream.match(TokenType.Const)) {
             return this.parseVariableDecl();
         }
@@ -321,7 +320,7 @@ export class WGSLParser {
      */
     private parseType(): string {
         let typeStr = '';
-        
+
         // Get base type
         const baseType = this.stream.next();
         typeStr = baseType.value;
@@ -329,12 +328,12 @@ export class WGSLParser {
         // Check for generic parameters
         if (this.stream.match(TokenType.Less)) {
             typeStr += this.stream.next().value; // <
-            
+
             // Parse generic type parameter
             while (!this.stream.match(TokenType.Greater) && !this.stream.isEOF()) {
                 typeStr += this.stream.next().value;
             }
-            
+
             if (this.stream.match(TokenType.Greater)) {
                 typeStr += this.stream.next().value; // >
             }
@@ -426,8 +425,8 @@ export class WGSLParser {
         }
 
         // Variable declaration
-        if (this.stream.match(TokenType.Var) || 
-            this.stream.match(TokenType.Let) || 
+        if (this.stream.match(TokenType.Var) ||
+            this.stream.match(TokenType.Let) ||
             this.stream.match(TokenType.Const)) {
             const varDecl = this.parseVariableDecl();
             return {
@@ -575,10 +574,10 @@ export class WGSLParser {
     private parseRelationalExpression(): Expression {
         let left = this.parseAdditiveExpression();
 
-        while (this.stream.match(TokenType.Less) || 
-               this.stream.match(TokenType.LessEqual) ||
-               this.stream.match(TokenType.Greater) || 
-               this.stream.match(TokenType.GreaterEqual)) {
+        while (this.stream.match(TokenType.Less) ||
+            this.stream.match(TokenType.LessEqual) ||
+            this.stream.match(TokenType.Greater) ||
+            this.stream.match(TokenType.GreaterEqual)) {
             const start = left.start;
             const operator = this.stream.next().value;
             const right = this.parseAdditiveExpression();
@@ -632,9 +631,9 @@ export class WGSLParser {
     private parseMultiplicativeExpression(): Expression {
         let left = this.parseUnaryExpression();
 
-        while (this.stream.match(TokenType.Star) || 
-               this.stream.match(TokenType.Slash) || 
-               this.stream.match(TokenType.Percent)) {
+        while (this.stream.match(TokenType.Star) ||
+            this.stream.match(TokenType.Slash) ||
+            this.stream.match(TokenType.Percent)) {
             const start = left.start;
             const operator = this.stream.next().value;
             const right = this.parseUnaryExpression();
@@ -659,7 +658,7 @@ export class WGSLParser {
      * Parse unary expression
      */
     private parseUnaryExpression(): Expression {
-        if (this.stream.match(TokenType.Not) || 
+        if (this.stream.match(TokenType.Not) ||
             this.stream.match(TokenType.Minus)) {
             const start = this.stream.peek().start;
             const operator = this.stream.next().value;
@@ -720,15 +719,39 @@ export class WGSLParser {
             };
         }
 
-        // Identifier or function call
-        if (this.stream.match(TokenType.Identifier)) {
+        // Type constructor or function call (vec4<f32>(...), vec3(...), etc.)
+        // Check for type keywords that can be used as constructors
+        const isTypeKeyword = this.stream.match(TokenType.Vec2) ||
+            this.stream.match(TokenType.Vec3) ||
+            this.stream.match(TokenType.Vec4) ||
+            this.stream.match(TokenType.Mat2x2) ||
+            this.stream.match(TokenType.Mat3x3) ||
+            this.stream.match(TokenType.Mat4x4) ||
+            this.stream.match(TokenType.F32) ||
+            this.stream.match(TokenType.I32) ||
+            this.stream.match(TokenType.U32) ||
+            this.stream.match(TokenType.Bool);
+
+        if (isTypeKeyword) {
             const token = this.stream.next();
-            
-            // Function call
+            let calleeName = token.value;
+
+            // Check for generic parameters (e.g., vec4<f32>)
+            if (this.stream.match(TokenType.Less)) {
+                calleeName += this.stream.next().value; // <
+                while (!this.stream.match(TokenType.Greater) && !this.stream.isEOF()) {
+                    calleeName += this.stream.next().value;
+                }
+                if (this.stream.match(TokenType.Greater)) {
+                    calleeName += this.stream.next().value; // >
+                }
+            }
+
+            // Check for function call
             if (this.stream.match(TokenType.LeftParen)) {
                 this.stream.next();
                 const args: Expression[] = [];
-                
+
                 while (!this.stream.match(TokenType.RightParen) && !this.stream.isEOF()) {
                     args.push(this.parseExpression());
                     if (this.stream.match(TokenType.Comma)) {
@@ -737,7 +760,50 @@ export class WGSLParser {
                         break;
                     }
                 }
-                
+
+                this.expect(TokenType.RightParen, 'Expected )');
+                const end = this.stream.peek().start;
+
+                return {
+                    type: ASTNodeType.Expression,
+                    start,
+                    end,
+                    children: args,
+                    kind: 'call',
+                    callee: calleeName,
+                    arguments: args,
+                };
+            }
+
+            // Just a type reference (shouldn't happen in expressions, but handle it)
+            return {
+                type: ASTNodeType.Expression,
+                start,
+                end: token.end,
+                children: [],
+                kind: 'identifier',
+                value: calleeName,
+            };
+        }
+
+        // Identifier or function call
+        if (this.stream.match(TokenType.Identifier)) {
+            const token = this.stream.next();
+
+            // Function call
+            if (this.stream.match(TokenType.LeftParen)) {
+                this.stream.next();
+                const args: Expression[] = [];
+
+                while (!this.stream.match(TokenType.RightParen) && !this.stream.isEOF()) {
+                    args.push(this.parseExpression());
+                    if (this.stream.match(TokenType.Comma)) {
+                        this.stream.next();
+                    } else {
+                        break;
+                    }
+                }
+
                 this.expect(TokenType.RightParen, 'Expected )');
                 const end = this.stream.peek().start;
 
@@ -823,8 +889,8 @@ export class WGSLParser {
     private skipToNextDeclaration(): void {
         while (!this.stream.isEOF()) {
             const token = this.stream.peek();
-            if (token.type === TokenType.Fn || 
-                token.type === TokenType.Struct || 
+            if (token.type === TokenType.Fn ||
+                token.type === TokenType.Struct ||
                 token.type === TokenType.Var ||
                 token.type === TokenType.Let ||
                 token.type === TokenType.Const) {

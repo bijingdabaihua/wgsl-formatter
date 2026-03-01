@@ -402,6 +402,8 @@ export class WGSLFormattingProvider
             useTabs,
             insertFinalNewline: config.insertFinalNewline,
             trimTrailingWhitespace: config.trimTrailingWhitespace,
+            maxLineLength: config.maxLineLength,
+            enableLineWrapping: config.enableLineWrapping,
         };
     }
 }

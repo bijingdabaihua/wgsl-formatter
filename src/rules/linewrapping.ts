@@ -4,7 +4,6 @@
  */
 
 import { Expression, FunctionDecl } from '../ast';
-import { FormatContext } from '../formatter';
 
 /**
  * Break point information for expression wrapping
