@@ -2,20 +2,20 @@
   "name": "wgsl-formatter",
   "displayName": "WGSL Formatter",
   "description": "Intelligent code formatter for WebGPU Shading Language (WGSL) with automatic indentation, spacing, alignment, and line wrapping",
-  "version": "0.1.0",
-  "publisher": "wgsl-formatter",
+  "version": "0.1.1",
+  "publisher": "wgsl-tools",
   "author": {
     "name": "WGSL Formatter Team"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wgsl-formatter/wgsl-formatter"
+    "url": "https://github.com/bijingdabaihua/wgsl-formatter"
   },
   "bugs": {
-    "url": "https://github.com/wgsl-formatter/wgsl-formatter/issues"
+    "url": "https://github.com/bijingdabaihua/wgsl-formatter/issues"
   },
-  "homepage": "https://github.com/wgsl-formatter/wgsl-formatter#readme",
+  "homepage": "https://github.com/bijingdabaihua/wgsl-formatter#readme",
   "keywords": [
     "wgsl",
     "webgpu",
