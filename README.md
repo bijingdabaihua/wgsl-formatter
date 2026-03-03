@@ -1,254 +1,253 @@
 # WGSL Formatter
 
-A Visual Studio Code extension that provides intelligent code formatting for WebGPU Shading Language (WGSL) files. Keep your shader code clean, consistent, and readable with automatic formatting that follows best practices.
+<div align="center">
 
-## Features
+**🎨 Professional code formatter for WebGPU Shading Language**
 
-- **Automatic Code Formatting**: Format entire documents or selected ranges with a single command
-- **Format on Save**: Automatically format your WGSL files when you save them
-- **Smart Indentation**: Configurable indentation with support for spaces or tabs
-- **Operator Spacing**: Consistent spacing around operators and after commas
-- **Struct Field Alignment**: Automatically align struct field types for better readability
-- **Line Length Control**: Automatic line wrapping for long function signatures and expressions
-- **Blank Line Management**: Preserve logical grouping with normalized blank lines
-- **Trailing Whitespace Removal**: Clean up unnecessary whitespace at line ends
-- **Error Recovery**: Gracefully handles syntax errors and formats valid portions
-- **Cross-Platform**: Works seamlessly on Windows, macOS, and Linux
-- **Fast Performance**: Formats files under 1000 lines in less than 500ms
+[![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)](https://marketplace.visualstudio.com/items?itemName=wgsl-tools.wgsl-formatter)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![VSCode](https://img.shields.io/badge/VSCode-1.75.0+-purple.svg)](https://code.visualstudio.com/)
 
-## Installation
+[English](#english) | [中文](#中文)
 
-1. Open Visual Studio Code
-2. Press `Ctrl+P` (Windows/Linux) or `Cmd+P` (macOS) to open Quick Open
-3. Type `ext install wgsl-formatter` and press Enter
-4. Reload VSCode when prompted
+</div>
 
-Alternatively, search for "WGSL Formatter" in the Extensions view (`Ctrl+Shift+X` or `Cmd+Shift+X`).
+---
 
-## Usage
+<a name="english"></a>
 
-### Format Entire Document
+## ✨ Features
 
-1. Open a `.wgsl` file in VSCode
-2. Use the format document command:
-   - Windows/Linux: `Shift+Alt+F`
-   - macOS: `Shift+Option+F`
-   - Or right-click and select "Format Document"
+- 🚀 **Lightning Fast** - Format files in milliseconds
+- 🎯 **Smart Formatting** - Intelligent indentation and spacing
+- 📐 **Auto Alignment** - Beautiful struct field alignment
+- 🔄 **Format on Save** - Automatic formatting when you save
+- ⚙️ **Highly Configurable** - Customize to match your style
+- 🛡️ **Error Tolerant** - Handles syntax errors gracefully
+- 🌍 **Cross-Platform** - Works on Windows, macOS, and Linux
 
-### Format Selection
+## 📦 Installation
 
-1. Select the code you want to format
-2. Use the format selection command:
-   - Windows/Linux: `Ctrl+K Ctrl+F`
-   - macOS: `Cmd+K Cmd+F`
-   - Or right-click and select "Format Selection"
+**Method 1: VSCode Marketplace**
+1. Open VSCode Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`)
+2. Search for "WGSL Formatter"
+3. Click Install
 
-### Format on Save
+**Method 2: Quick Install**
+```
+ext install wgsl-tools.wgsl-formatter
+```
 
-Enable automatic formatting when you save files by adding this to your VSCode settings:
+## 🚀 Quick Start
+
+1. Open any `.wgsl` file
+2. Press `Shift+Alt+F` (Windows/Linux) or `Shift+Option+F` (macOS)
+3. Done! Your code is now beautifully formatted ✨
+
+### Enable Format on Save
+
+Add to your VSCode settings:
 
 ```json
 {
   "editor.formatOnSave": true,
   "[wgsl]": {
-    "editor.defaultFormatter": "wgsl-formatter.wgsl-formatter"
+    "editor.defaultFormatter": "wgsl-tools.wgsl-formatter"
   }
 }
 ```
 
-## Configuration
+## 📸 Before & After
 
-This extension provides the following configuration options. Access them through VSCode settings (`File > Preferences > Settings` or `Ctrl+,`).
-
-### `wgslFormatter.indentSize`
-
-- **Type**: `number`
-- **Default**: `4`
-- **Description**: Number of spaces used for each indentation level
-
-Example:
-```json
-{
-  "wgslFormatter.indentSize": 2
-}
-```
-
-### `wgslFormatter.useTabs`
-
-- **Type**: `boolean`
-- **Default**: `false`
-- **Description**: Use tabs instead of spaces for indentation
-
-Example:
-```json
-{
-  "wgslFormatter.useTabs": true
-}
-```
-
-### `wgslFormatter.maxLineLength`
-
-- **Type**: `number`
-- **Default**: `100`
-- **Description**: Maximum line length before automatic line wrapping is applied
-
-Example:
-```json
-{
-  "wgslFormatter.maxLineLength": 120
-}
-```
-
-### `wgslFormatter.enableLineWrapping`
-
-- **Type**: `boolean`
-- **Default**: `true`
-- **Description**: Enable automatic line wrapping for long lines (function signatures, expressions)
-
-Example:
-```json
-{
-  "wgslFormatter.enableLineWrapping": false
-}
-```
-
-### Inherited VSCode Settings
-
-The formatter also respects these standard VSCode editor settings:
-
-- `editor.insertFinalNewline`: Ensures files end with a newline
-- `editor.trimTrailingWhitespace`: Removes trailing whitespace from lines
-
-## Formatting Examples
-
-### Before Formatting
+<table>
+<tr>
+<td> Before </td> <td> After </td>
+</tr>
+<tr>
+<td>
 
 ```wgsl
-fn computeShading(position:vec3<f32>,normal:vec3<f32>,lightDir:vec3<f32>,viewDir:vec3<f32>)->vec3<f32>{
-let diffuse=max(dot(normal,lightDir),0.0);
-let specular=pow(max(dot(reflect(-lightDir,normal),viewDir),0.0),32.0);
-return diffuse+specular;
+struct Vertex{
+@location(0) pos:vec3<f32>,
+@location(1) normal:vec3<f32>,
 }
-
-struct VertexOutput{
-@builtin(position) position:vec4<f32>,
-@location(0) color:vec3<f32>,
+fn main(v:Vertex)->vec4<f32>{
+return vec4<f32>(v.pos,1.0);
 }
 ```
 
-### After Formatting
+</td>
+<td>
 
 ```wgsl
-fn computeShading(
-    position: vec3<f32>,
-    normal: vec3<f32>,
-    lightDir: vec3<f32>,
-    viewDir: vec3<f32>
-) -> vec3<f32>
-{
-    let diffuse = max(dot(normal, lightDir), 0.0);
-    let specular = pow(max(dot(reflect(-lightDir, normal), viewDir), 0.0), 32.0);
-    return diffuse + specular;
+struct Vertex {
+    @location(0) pos:    vec3<f32>,
+    @location(1) normal: vec3<f32>,
 }
 
-struct VertexOutput {
-    @builtin(position) position: vec4<f32>,
-    @location(0)       color:    vec3<f32>,
+fn main(v: Vertex) -> vec4<f32> {
+    return vec4<f32>(v.pos, 1.0);
 }
 ```
 
-## Requirements
+</td>
+</tr>
+</table>
 
-- Visual Studio Code version 1.75.0 or higher
-- No additional dependencies required
+## ⚙️ Configuration
 
-## Known Issues
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `wgslFormatter.indentSize` | `4` | Spaces per indentation level |
+| `wgslFormatter.useTabs` | `false` | Use tabs instead of spaces |
+| `wgslFormatter.maxLineLength` | `100` | Maximum line length |
+| `wgslFormatter.enableLineWrapping` | `true` | Enable automatic line wrapping |
 
-- Very large files (>10,000 lines) may experience slower formatting times
-- Complex nested expressions may not always wrap at the most optimal points
+## 🎯 What Gets Formatted
 
-## Troubleshooting
+✅ Indentation and nesting  
+✅ Operator spacing (`=`, `+`, `-`, `*`, `/`)  
+✅ Comma spacing  
+✅ Struct field alignment  
+✅ Function parameter alignment  
+✅ Blank line normalization  
+✅ Trailing whitespace removal  
 
-### Formatter Not Working
+## 🤝 Contributing
 
-1. Ensure the file has a `.wgsl` extension
-2. Check that no other formatter is set as default for WGSL files
-3. Look for error messages in the Output panel (View > Output, select "WGSL Formatter")
+Contributions are welcome! Please check out our [Contributing Guide](CONTRIBUTING.md).
 
-### Formatting Errors
+## 📝 License
 
-If you encounter formatting errors:
+MIT © [WGSL Tools](LICENSE)
 
-1. Check the Output panel for detailed error messages
-2. Verify your WGSL syntax is valid
-3. Try formatting a smaller section to isolate the issue
+## 🔗 Links
 
-### Performance Issues
-
-For large files:
-
-1. Consider disabling line wrapping for better performance
-2. Format specific sections instead of the entire document
-3. Check the Output panel for timeout warnings
-
-## Development
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/wgsl-formatter.git
-cd wgsl-formatter
-
-# Install dependencies
-npm install
-
-# Run tests
-npm test
-
-# Build extension
-npm run build
-
-# Watch mode for development
-npm run watch
-```
-
-### Testing Locally
-
-```bash
-# Package the extension
-npm run package
-
-# Install in VSCode
-code --install-extension wgsl-formatter-0.1.0.vsix
-```
-
-## Contributing
-
-Found a bug or have a feature request? Please open an issue on our [GitHub repository](https://github.com/wgsl-formatter/wgsl-formatter).
-
-### Pull Request Process
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`npm test`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
-## Publishing
-
-See [QUICK_START_PUBLISHING.md](QUICK_START_PUBLISHING.md) for quick publishing guide or [PUBLISHING_GUIDE.md](PUBLISHING_GUIDE.md) for detailed instructions.
-
-## Release Notes
-
-See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
-
-## License
-
-MIT License - see LICENSE file for details
+- [GitHub Repository](https://github.com/bijingdabaihua/wgsl-formatter)
+- [Issue Tracker](https://github.com/bijingdabaihua/wgsl-formatter/issues)
+- [Changelog](CHANGELOG.md)
 
 ---
 
-**Enjoy cleaner WGSL code!** 🚀
+<a name="中文"></a>
+
+## ✨ 功能特性
+
+- 🚀 **极速格式化** - 毫秒级格式化速度
+- 🎯 **智能格式化** - 智能缩进和空格处理
+- 📐 **自动对齐** - 结构体字段自动对齐
+- 🔄 **保存时格式化** - 保存文件时自动格式化
+- ⚙️ **高度可配置** - 自定义格式化风格
+- 🛡️ **容错处理** - 优雅处理语法错误
+- 🌍 **跨平台支持** - 支持 Windows、macOS 和 Linux
+
+## 📦 安装
+
+**方法 1：VSCode 扩展商店**
+1. 打开 VSCode 扩展面板（`Ctrl+Shift+X` / `Cmd+Shift+X`）
+2. 搜索 "WGSL Formatter"
+3. 点击安装
+
+**方法 2：快速安装**
+```
+ext install wgsl-tools.wgsl-formatter
+```
+
+## 🚀 快速开始
+
+1. 打开任意 `.wgsl` 文件
+2. 按 `Shift+Alt+F`（Windows/Linux）或 `Shift+Option+F`（macOS）
+3. 完成！代码已格式化 ✨
+
+### 启用保存时格式化
+
+在 VSCode 设置中添加：
+
+```json
+{
+  "editor.formatOnSave": true,
+  "[wgsl]": {
+    "editor.defaultFormatter": "wgsl-tools.wgsl-formatter"
+  }
+}
+```
+
+## 📸 格式化前后对比
+
+<table>
+<tr>
+<td> 格式化前 </td> <td> 格式化后 </td>
+</tr>
+<tr>
+<td>
+
+```wgsl
+struct Vertex{
+@location(0) pos:vec3<f32>,
+@location(1) normal:vec3<f32>,
+}
+fn main(v:Vertex)->vec4<f32>{
+return vec4<f32>(v.pos,1.0);
+}
+```
+
+</td>
+<td>
+
+```wgsl
+struct Vertex {
+    @location(0) pos:    vec3<f32>,
+    @location(1) normal: vec3<f32>,
+}
+
+fn main(v: Vertex) -> vec4<f32> {
+    return vec4<f32>(v.pos, 1.0);
+}
+```
+
+</td>
+</tr>
+</table>
+
+## ⚙️ 配置选项
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `wgslFormatter.indentSize` | `4` | 每级缩进的空格数 |
+| `wgslFormatter.useTabs` | `false` | 使用 Tab 而非空格 |
+| `wgslFormatter.maxLineLength` | `100` | 最大行长度 |
+| `wgslFormatter.enableLineWrapping` | `true` | 启用自动换行 |
+
+## 🎯 格式化内容
+
+✅ 缩进和嵌套  
+✅ 运算符空格（`=`、`+`、`-`、`*`、`/`）  
+✅ 逗号后空格  
+✅ 结构体字段对齐  
+✅ 函数参数对齐  
+✅ 空行规范化  
+✅ 行尾空格清理  
+
+## 🤝 参与贡献
+
+欢迎贡献代码！请查看我们的[贡献指南](CONTRIBUTING.md)。
+
+## 📝 开源协议
+
+MIT © [WGSL Tools](LICENSE)
+
+## 🔗 相关链接
+
+- [GitHub 仓库](https://github.com/bijingdabaihua/wgsl-formatter)
+- [问题反馈](https://github.com/bijingdabaihua/wgsl-formatter/issues)
+- [更新日志](CHANGELOG.md)
+
+---
+
+<div align="center">
+
+**Made with ❤️ for WebGPU developers**
+
+If you find this extension helpful, please ⭐ star the repo!
+
+</div>
