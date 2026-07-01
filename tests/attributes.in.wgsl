@@ -1,0 +1,2 @@
+@vertex
+fn main(){return;}

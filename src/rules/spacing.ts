@@ -1,24 +1,20 @@
 /**
  * Spacing Rule - Handles spacing around operators and punctuation
+ *
+ * Spec Reference: SPEC.md §3 - Spacing Rules
+ * Spec: §3.1-§3.10 - All spacing rules
  */
 
-import { ASTNode, Expression } from '../ast';
-import { FormattingRule, FormatContext } from '../formatter';
+import { Expression } from '../ast';
 
 /**
  * SpacingRule class
+ * Provides static spacing utilities for the formatter
  */
-export class SpacingRule implements FormattingRule {
-    /**
-     * Apply spacing rule to AST node
-     */
-    apply(_node: ASTNode, _context: FormatContext): void {
-        // This method will be called during AST traversal
-        // Spacing is applied when formatting expressions
-    }
-
+export class SpacingRule {
     /**
      * Format expression with proper spacing
+     * Spec: §3 - All spacing rules
      */
     formatExpression(expr: Expression): string {
         switch (expr.kind) {
@@ -32,16 +28,16 @@ export class SpacingRule implements FormattingRule {
                 return this.formatCallExpression(expr);
 
             case 'literal':
-                // Preserve float formatting by ensuring .0 suffix for whole numbers
-                const value = String(expr.value ?? '');
-                // If it's a number and doesn't contain a decimal point, add .0
-                if (typeof expr.value === 'number' && !value.includes('.')) {
-                    return value + '.0';
-                }
-                return value;
+                return String(expr.value ?? '');
 
             case 'identifier':
                 return String(expr.value ?? '');
+
+            case 'memberAccess':
+                return `${this.formatExpression(expr.object!)}.${expr.member}`;
+
+            case 'indexAccess':
+                return `${this.formatExpression(expr.object!)}[${this.formatExpression(expr.index!)}]`;
 
             default:
                 return '';
@@ -50,81 +46,34 @@ export class SpacingRule implements FormattingRule {
 
     /**
      * Format binary expression with spacing around operators
+     * Spec: §3.1 - Spaces around all binary operators
      */
     private formatBinaryExpression(expr: Expression): string {
-        if (!expr.left || !expr.right || !expr.operator) {
-            return '';
-        }
-
+        if (!expr.left || !expr.right || !expr.operator) return '';
         const left = this.formatExpression(expr.left);
         const right = this.formatExpression(expr.right);
-        const operator = expr.operator;
-
-        // Add spaces around operators (except for assignment in some contexts)
-        return `${left} ${operator} ${right}`;
+        return `${left} ${expr.operator} ${right}`;
     }
 
     /**
      * Format unary expression
+     * Spec: §3.2 - No space after unary operator
      */
     private formatUnaryExpression(expr: Expression): string {
-        if (!expr.operand || !expr.operator) {
-            return '';
-        }
-
-        const operand = this.formatExpression(expr.operand);
-        const operator = expr.operator;
-
-        // No space between unary operator and operand
-        return `${operator}${operand}`;
+        if (!expr.operand || !expr.operator) return '';
+        return `${expr.operator}${this.formatExpression(expr.operand)}`;
     }
 
     /**
-     * Format function call expression with spacing after commas
+     * Format function call
+     * Spec: §3.8 - No space before (, space after comma
      */
     private formatCallExpression(expr: Expression): string {
-        if (!expr.callee) {
-            return '';
-        }
-
+        if (!expr.callee) return '';
         const callee = expr.callee;
-        const args = expr.arguments || [];
-
-        // Format arguments with space after comma
-        const formattedArgs = args
+        const args = (expr.arguments || [])
             .map(arg => this.formatExpression(arg))
             .join(', ');
-
-        return `${callee}(${formattedArgs})`;
-    }
-
-    /**
-     * Add space after comma
-     */
-    addSpaceAfterComma(text: string): string {
-        // Replace comma not followed by space with comma + space
-        return text.replace(/,(?!\s)/g, ', ');
-    }
-
-    /**
-     * Check if position is at line start or end
-     */
-    isAtLineEdge(line: string, position: number): boolean {
-        return position === 0 || position === line.length;
-    }
-
-    /**
-     * Check if character is inside parentheses/brackets
-     */
-    isInsideParentheses(text: string, position: number): boolean {
-        let depth = 0;
-        for (let i = 0; i < position; i++) {
-            if (text[i] === '(' || text[i] === '[' || text[i] === '{') {
-                depth++;
-            } else if (text[i] === ')' || text[i] === ']' || text[i] === '}') {
-                depth--;
-            }
-        }
-        return depth > 0;
+        return `${callee}(${args})`;
     }
 }

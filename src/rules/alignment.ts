@@ -1,72 +1,45 @@
 /**
- * Alignment Rule - Handles alignment of struct fields
+ * Alignment Rule - Handles alignment of struct fields and parameters
+ *
+ * Spec Reference: SPEC.md §4 - Alignment Rules
+ * Spec: §4.1 - Struct field alignment
+ * Spec: §4.2 - Function parameter alignment (multi-line)
  */
 
-import { ASTNode, ASTNodeType, StructDecl, VariableDecl } from '../ast';
-import { FormattingRule, FormatContext } from '../formatter';
+import { StructField } from '../ast';
 
 /**
  * AlignmentRule class
  */
-export class AlignmentRule implements FormattingRule {
-    /**
-     * Apply alignment rule to AST node
-     */
-    apply(_node: ASTNode, _context: FormatContext): void {
-        // This method will be called during AST traversal
-        // Alignment is specifically applied to struct fields
-    }
-
+export class AlignmentRule {
     /**
      * Calculate alignment for struct fields
-     * Returns the column position where types should start
+     * Spec: §4.1 - Find longest field name (including attributes)
+     *
+     * @param fields - Struct fields
+     * @returns The column position where types should start
      */
-    calculateFieldAlignment(fields: VariableDecl[]): number {
-        if (fields.length === 0) {
-            return 0;
-        }
+    calculateFieldAlignment(fields: StructField[]): number {
+        if (fields.length === 0) return 0;
 
-        // Find the longest field name
         let maxNameLength = 0;
         for (const field of fields) {
-            if (field.name.length > maxNameLength) {
-                maxNameLength = field.name.length;
+            const attrStr = field.attributes.length > 0
+                ? field.attributes.map(a => `@${a.name}${a.arguments.length > 0 ? `(${a.arguments.join(', ')})` : ''}`).join(' ') + ' '
+                : '';
+            const nameWithColon = `${attrStr}${field.name}:`;
+            if (nameWithColon.length > maxNameLength) {
+                maxNameLength = nameWithColon.length;
             }
         }
 
-        // Add padding for colon and space (": ")
-        return maxNameLength + 2;
-    }
-
-    /**
-     * Format struct fields with alignment
-     */
-    formatStructFields(struct: StructDecl, indentString: string): string[] {
-        const fields = struct.fields;
-        const lines: string[] = [];
-
-        if (fields.length === 0) {
-            return lines;
-        }
-
-        // Calculate alignment column
-        const alignColumn = this.calculateFieldAlignment(fields);
-
-        // Format each field
-        for (const field of fields) {
-            const nameWithColon = `${field.name}:`;
-            const padding = ' '.repeat(alignColumn - nameWithColon.length);
-            const line = `${indentString}${nameWithColon}${padding}${field.varType},`;
-            lines.push(line);
-        }
-
-        return lines;
+        return maxNameLength + 2; // +2 for ": " after the longest name
     }
 
     /**
      * Check if a node is a struct declaration
      */
-    isStructDecl(node: ASTNode): node is StructDecl {
-        return node.type === ASTNodeType.StructDecl;
+    isStructDecl(nodeType: string): boolean {
+        return nodeType === 'StructDecl';
     }
 }

@@ -1,27 +1,21 @@
 /**
  * Blank Line Rule - Handles blank lines for logical grouping
+ *
+ * Spec Reference: SPEC.md §6 - Blank Lines
+ * Spec: §6.1 - Between top-level declarations
+ * Spec: §6.2 - Within functions (max 1 blank line)
+ * Spec: §6.3 - File ending
  */
-
-import { ASTNode } from '../ast';
-import { FormattingRule, FormatContext } from '../formatter';
 
 /**
  * BlankLineRule class
  */
-export class BlankLineRule implements FormattingRule {
-    /**
-     * Apply blank line rule to AST node
-     */
-    apply(_node: ASTNode, _context: FormatContext): void {
-        // This method will be called during AST traversal
-        // Blank lines are preserved during formatting
-    }
-
+export class BlankLineRule {
     /**
      * Normalize consecutive blank lines to at most one blank line
+     * Spec: §6.2 - Max 1 consecutive blank line
      */
     normalizeBlankLines(text: string): string {
-        // Replace multiple consecutive newlines with at most two newlines (one blank line)
         return text.replace(/\n{3,}/g, '\n\n');
     }
 
@@ -34,7 +28,7 @@ export class BlankLineRule implements FormattingRule {
 
     /**
      * Preserve blank lines between declarations
-     * Returns normalized lines with proper blank line spacing
+     * Spec: §6.2
      */
     preserveBlankLines(lines: string[]): string[] {
         const result: string[] = [];
@@ -43,7 +37,6 @@ export class BlankLineRule implements FormattingRule {
         for (const line of lines) {
             if (this.isBlankLine(line)) {
                 consecutiveBlankLines++;
-                // Only add one blank line maximum
                 if (consecutiveBlankLines === 1) {
                     result.push('');
                 }
@@ -54,18 +47,5 @@ export class BlankLineRule implements FormattingRule {
         }
 
         return result;
-    }
-
-    /**
-     * Should add blank line before this node
-     */
-    shouldAddBlankLineBefore(node: ASTNode, previousNode: ASTNode | null): boolean {
-        // Add blank line between top-level declarations
-        if (!previousNode) {
-            return false;
-        }
-
-        // Add blank line between different types of declarations
-        return node.type !== previousNode.type;
     }
 }

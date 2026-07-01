@@ -1,38 +1,20 @@
 /**
  * Trailing Whitespace Rule - Removes trailing whitespace from lines
+ *
+ * Spec Reference: SPEC.md §11.4 - No trailing whitespace
  */
-
-import { ASTNode } from '../ast';
-import { FormattingRule, FormatContext } from '../formatter';
 
 /**
  * TrailingWhitespaceRule class
  */
-export class TrailingWhitespaceRule implements FormattingRule {
-    /**
-     * Apply trailing whitespace rule to AST node
-     */
-    apply(_node: ASTNode, _context: FormatContext): void {
-        // This rule is applied as post-processing
-        // It doesn't need to do anything during AST traversal
-    }
-
+export class TrailingWhitespaceRule {
     /**
      * Remove trailing whitespace from all lines
      */
     removeTrailingWhitespace(text: string): string {
-        return text
-            .split('\n')
-            .map(line => this.removeTrailingWhitespaceFromLine(line))
+        return text.split('\n')
+            .map(line => line.replace(/[ \t]+$/, ''))
             .join('\n');
-    }
-
-    /**
-     * Remove trailing whitespace from a single line
-     */
-    removeTrailingWhitespaceFromLine(line: string): string {
-        // Remove spaces and tabs at the end of the line
-        return line.replace(/[ \t]+$/, '');
     }
 
     /**
