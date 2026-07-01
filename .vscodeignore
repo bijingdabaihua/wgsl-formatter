@@ -2,6 +2,7 @@
 .vscode/**
 .vscode-test/**
 .kiro/**
+.claude/**
 
 # Source files (only include compiled dist/)
 src/**
@@ -25,15 +26,17 @@ vitest.config.ts
 # CI/CD
 .github/**
 
+# Scripts (not needed in extension)
+scripts/**
+
 # Test and coverage
 coverage/**
 *.test.ts
 *.spec.ts
 
-# Documentation (exclude except README and CHANGELOG)
+# Documentation (exclude except README)
 *.md
 !README.md
-!CHANGELOG.md
 
 # Logs and temp files
 *.log
@@ -45,7 +48,7 @@ Thumbs.db
 # Package files
 *.vsix
 
-# Lock files (keep package.json but not lock files)
+# Lock files
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
