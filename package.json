@@ -4,7 +4,6 @@
   "description": "Intelligent code formatter for WebGPU Shading Language (WGSL) with automatic indentation, spacing, alignment, and line wrapping",
   "version": "0.1.1",
   "publisher": "wgsl-tools",
-  "icon": "icon.png",
   "author": {
     "name": "WGSL Formatter Team"
   },
