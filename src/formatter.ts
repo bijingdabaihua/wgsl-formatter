@@ -622,12 +622,13 @@ export class FormatterEngine {
         // Attributes (if any)
         this.formatAttributes(varDecl.attributes, indent, context);
 
-        // Build: var name: type
-        let line = `${indent}${keyword} ${varDecl.name}: ${varDecl.varType}`;
+        // Build: var name: type (or let name when type is inferred)
+        let typePart = varDecl.varType ? `: ${varDecl.varType}` : '';
+        let line = `${indent}${keyword} ${varDecl.name}${typePart}`;
 
         // Storage class: var<uniform>
         if (varDecl.storageClass) {
-            line = `${indent}${keyword}<${varDecl.storageClass}> ${varDecl.name}: ${varDecl.varType}`;
+            line = `${indent}${keyword}<${varDecl.storageClass}> ${varDecl.name}${typePart}`;
         }
 
         // Initializer
