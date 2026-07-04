@@ -55,6 +55,13 @@
         "configuration": "./language-configuration.json"
       }
     ],
+    "grammars": [
+      {
+        "language": "wgsl",
+        "scopeName": "source.wgsl",
+        "path": "./syntaxes/wgsl.tmLanguage.json"
+      }
+    ],
     "configuration": {
       "title": "WGSL Formatter",
       "properties": {
