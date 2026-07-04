@@ -1,0 +1,141 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "WGSL",
+  "scopeName": "source.wgsl",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#attributes"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "include": "#storage-class"
+    },
+    {
+      "include": "#swizzle"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#identifiers"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.wgsl",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.wgsl",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "attributes": {
+      "name": "storage.modifier.attribute.wgsl",
+      "match": "@[a-zA-Z_][a-zA-Z0-9_]*(?:\\([^)]*\\))?"
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hex.wgsl",
+          "match": "\\b0[xX][0-9a-fA-F]+[ui]?\\b"
+        },
+        {
+          "name": "constant.numeric.float.wgsl",
+          "match": "\\b[0-9]+\\.[0-9]+([eE][+-]?[0-9]+)?[f]?\\b"
+        },
+        {
+          "name": "constant.numeric.integer.wgsl",
+          "match": "\\b[0-9]+([ui]|(?=\\s|;|\\)|,|\\]|\\}|$))"
+        },
+        {
+          "name": "constant.language.bool.wgsl",
+          "match": "\\b(true|false)\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.wgsl",
+          "match": "\\b(if|else|for|while|loop|switch|case|default|break|continue|return|discard)\\b"
+        },
+        {
+          "name": "keyword.storage.wgsl",
+          "match": "\\b(fn|struct|var|let|const|override|alias|enable|diagnostic)\\b"
+        },
+        {
+          "name": "keyword.other.wgsl",
+          "match": "\\b(import|export|workgroup_size|compute|vertex|fragment)\\b"
+        }
+      ]
+    },
+    "types": {
+      "name": "support.type.wgsl",
+      "match": "\\b(f32|f16|i32|u32|bool|vec2|vec3|vec4|mat2x2|mat2x3|mat2x4|mat3x2|mat3x3|mat3x4|mat4x2|mat4x3|mat4x4|array|ptr|atomic|sampler|sampler_comparison|texture_1d|texture_2d|texture_3d|texture_cube|texture_depth_2d|texture_multisampled_2d|texture_depth_multisampled_2d|texture_storage_1d|texture_storage_2d|texture_storage_3d|texture_external)\\b"
+    },
+    "storage-class": {
+      "name": "storage.type.wgsl",
+      "match": "\\b(uniform|storage|function|private|workgroup|handle|push_constant)\\b"
+    },
+    "swizzle": {
+      "name": "support.function.swizzle.wgsl",
+      "match": "\\.(?:[xyzw]{1,4}|[rgba]{1,4}|[stpq]{1,4})\\b"
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.assignment.wgsl",
+          "match": "(\\+=|-=|\\*=|/=|%=|&=|\\|=|\\^=|<<=|>>=)"
+        },
+        {
+          "name": "keyword.operator.comparison.wgsl",
+          "match": "(==|!=|<=|>=|<|>)"
+        },
+        {
+          "name": "keyword.operator.logical.wgsl",
+          "match": "(&&|\\|\\||!)"
+        },
+        {
+          "name": "keyword.operator.bitwise.wgsl",
+          "match": "(<<|>>|&|\\||\\^|~)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.wgsl",
+          "match": "(\\+|\\-|\\*|/|%|->|(?<![\\w@])=(?!=|>))"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "name": "entity.name.function.wgsl",
+          "match": "(?<=fn\\s)\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        },
+        {
+          "name": "entity.name.type.wgsl",
+          "match": "(?<=struct\\s)\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        },
+        {
+          "name": "variable.other.wgsl",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    }
+  }
+}
