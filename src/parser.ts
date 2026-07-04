@@ -476,10 +476,13 @@ export class WGSLParser {
         const nameToken = this.expect(TokenType.Identifier, 'Expected variable name');
         const name = nameToken?.value || '';
 
-        // Type annotation
-        this.expect(TokenType.Colon, 'Expected :');
+        // Type annotation (optional for let/const when initializer is present)
+        let varType = '';
         this.lastTypeConsumedEqual = false;
-        const varType = this.parseType();
+        if (this.stream.match(TokenType.Colon)) {
+            this.stream.next(); // consume :
+            varType = this.parseType();
+        }
 
         // Initializer
         let initializer: Expression | null = null;
