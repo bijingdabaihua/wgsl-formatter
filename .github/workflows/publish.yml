@@ -1,4 +1,4 @@
-name: Publish Extension
+name: Publish to Marketplace
 
 on:
   release:
@@ -8,59 +8,51 @@ jobs:
   publish:
     name: Publish to VSCode Marketplace
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18.x'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run tests
         run: npm test
-      
+
       - name: Build extension
         run: npm run build
-      
+
       - name: Get version from tag
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-      
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
       - name: Verify version matches package.json
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          if [ "$PACKAGE_VERSION" != "${{ steps.get_version.outputs.VERSION }}" ]; then
-            echo "Error: package.json version ($PACKAGE_VERSION) does not match tag version (${{ steps.get_version.outputs.VERSION }})"
+          TAG_VERSION="${{ steps.get_version.outputs.VERSION }}"
+          if [ "$PACKAGE_VERSION" != "$TAG_VERSION" ]; then
+            echo "❌ 版本不匹配: package.json 是 $PACKAGE_VERSION，但 tag 是 $TAG_VERSION"
             exit 1
           fi
-      
-      - name: Package extension
-        run: npm run package
-      
+          echo "✅ 版本验证通过: $PACKAGE_VERSION"
+
       - name: Publish to VSCode Marketplace
-        run: npx vsce publish -p ${{ secrets.VSCE_PAT }}
+        run: npx vsce publish --packagePath ./wgsl-formatter-${{ steps.get_version.outputs.VERSION }}.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-      
-      - name: Upload VSIX to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./wgsl-formatter-${{ steps.get_version.outputs.VERSION }}.vsix
-          asset_name: wgsl-formatter-${{ steps.get_version.outputs.VERSION }}.vsix
-          asset_content_type: application/zip
-      
+
       - name: Publish success notification
         if: success()
         run: |
-          echo "✅ Extension published successfully!"
-          echo "Version: ${{ steps.get_version.outputs.VERSION }}"
-          echo "Marketplace: https://marketplace.visualstudio.com/items?itemName=$(node -p "require('./package.json').publisher").wgsl-formatter"
+          echo "✅ 扩展已成功发布到 VSCode Marketplace!"
+          echo "版本: ${{ steps.get_version.outputs.TAG_NAME }}"
+          echo "链接: https://marketplace.visualstudio.com/items?itemName=wgsl-tools.wgsl-formatter"

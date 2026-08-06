@@ -415,13 +415,13 @@ export class WGSLParser {
      * Parse struct field list with attributes
      * Spec: §8.2 - fields can have per-field attributes
      */
-    private parseStructFieldList(): StructField[] {
-        const fields: StructField[] = [];
+    private parseStructFieldList(): (StructField | Comment)[] {
+        const fields: (StructField | Comment)[] = [];
 
         while (!this.stream.match(TokenType.RightBrace) && !this.stream.isEOF()) {
-            // Skip comments but keep them interspersed
+            // Collect inline comments
             if (this.stream.match(TokenType.Comment)) {
-                this.stream.next(); // consume comment without storing
+                fields.push(this.parseComment());
                 continue;
             }
 
@@ -454,7 +454,6 @@ export class WGSLParser {
 
         return fields;
     }
-
     // ─── Variable Declarations ────────────────────────────────────
 
     /**
@@ -466,10 +465,18 @@ export class WGSLParser {
         const keyword = this.stream.next().value; // var, let, or const
 
         // Storage class: <uniform>, <storage>, <function>, <private>, <workgroup>
+        // Also supports access mode: <storage, read>, <storage, read_write>
         let storageClass: string | undefined;
+        let accessMode: string | undefined;
         if (this.stream.match(TokenType.Less)) {
             this.stream.next(); // consume <
             storageClass = this.stream.next().value;
+            // Check for access mode: <storage, read>
+            if (this.stream.match(TokenType.Comma)) {
+                this.stream.next(); // consume ,
+                const accessToken = this.expect(TokenType.Identifier, 'Expected access mode (read, write, read_write)');
+                accessMode = accessToken?.value;
+            }
             this.expect(TokenType.Greater, 'Expected >');
         }
 
@@ -504,6 +511,7 @@ export class WGSLParser {
             varType,
             keyword,
             storageClass,
+            accessMode,
             initializer,
             attributes,
         };
@@ -518,9 +526,17 @@ export class WGSLParser {
         const statements: Statement[] = [];
 
         while (!this.stream.match(TokenType.RightBrace) && !this.stream.isEOF()) {
-            // Skip comments
+            // Preserve comments as statements
             if (this.stream.match(TokenType.Comment)) {
-                this.stream.next();
+                const comment = this.parseComment();
+                statements.push({
+                    type: ASTNodeType.Statement,
+                    start: comment.start,
+                    end: comment.end,
+                    children: [comment],
+                    kind: 'comment',
+                    comment,
+                });
                 continue;
             }
 
@@ -1288,6 +1304,7 @@ export class WGSLParser {
         const unaryOps = [
             TokenType.Not, TokenType.Minus, TokenType.BitwiseNot,
             TokenType.Star, TokenType.BitwiseAnd, TokenType.Plus,
+            TokenType.PlusPlus, TokenType.MinusMinus,
         ];
 
         if (unaryOps.some(op => this.stream.match(op))) {
@@ -1303,6 +1320,7 @@ export class WGSLParser {
                 children: [operand],
                 kind: 'unary',
                 operator,
+                position: 'prefix',
                 operand,
             };
         }
@@ -1334,6 +1352,24 @@ export class WGSLParser {
             // Member access: a.b
             if (this.stream.match(TokenType.Dot)) {
                 expr = this.parseMemberSuffix(expr);
+                continue;
+            }
+
+            // Increment / decrement: a++, a--
+            if (this.stream.match(TokenType.PlusPlus) || this.stream.match(TokenType.MinusMinus)) {
+                const start = expr.start;
+                const operator = this.stream.next().value;
+                const end = expr.end;
+                expr = {
+                    type: ASTNodeType.Expression,
+                    start,
+                    end,
+                    children: [expr],
+                    kind: 'unary',
+                    operator,
+                    position: 'postfix',
+                    operand: expr,
+                };
                 continue;
             }
 

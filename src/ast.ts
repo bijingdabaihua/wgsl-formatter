@@ -88,7 +88,7 @@ export interface FunctionDecl extends ASTNode {
 export interface StructDecl extends ASTNode {
     type: ASTNodeType.StructDecl;
     name: string;
-    fields: StructField[];
+    fields: (StructField | Comment)[];
 }
 
 /**
@@ -112,6 +112,7 @@ export interface VariableDecl extends ASTNode {
     varType: string;
     keyword?: string;       // 'var', 'let', or 'const'
     storageClass?: string;  // <uniform>, <storage>, <function>, <private>, <workgroup>
+    accessMode?: string;    // 'read', 'write', 'read_write' (for var<storage, accessMode>)
     initializer: Expression | null;
     attributes: Attribute[];
 }
@@ -161,9 +162,10 @@ export interface OverrideDecl extends ASTNode {
  */
 export interface Statement extends ASTNode {
     type: ASTNodeType.Statement;
-    kind: 'return' | 'assignment' | 'expression' | 'block' | 'variableDecl';
+    kind: 'return' | 'assignment' | 'expression' | 'block' | 'variableDecl' | 'comment';
     expression?: Expression;
     varDecl?: VariableDecl;
+    comment?: Comment;
 }
 
 /**
@@ -260,6 +262,7 @@ export interface Expression extends ASTNode {
         | 'cast';
     value?: string | number | boolean;
     operator?: string;
+    position?: 'prefix' | 'postfix';
     left?: Expression;
     right?: Expression;
     operand?: Expression;

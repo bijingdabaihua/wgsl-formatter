@@ -344,15 +344,15 @@ struct Input{@location(0)pos:vec3<f32>,@location(1)normal:vec3<f32>,}
 
 // Output:
 struct Input {
-    @location(0) pos: vec3<f32>,
-    @location(1) pos: vec3<f32>,
+    @location(0) pos:    vec3<f32>,
+    @location(1) normal:  vec3<f32>,
 }
 ```
 
 对齐计算：
 - `@location(0) pos:` = 17 字符
-- `@location(1) pos:` = 17 字符
-- 对齐列 = 17 + 1 = 18
+- `@location(1) normal:` = 20 字符
+- 对齐列 = 20 + 1 = 21
 
 ### R5.3 多行函数参数对齐
 当函数参数换行时，参数从左括号后一列开始对齐。

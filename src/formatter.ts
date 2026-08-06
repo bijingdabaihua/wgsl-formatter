@@ -569,9 +569,9 @@ export class FormatterEngine {
      * Spec: §9.3 - Per-field attributes
      */
     private formatStructFields(
-        fields: StructField[],
+        fields: (StructField | Comment)[],
         fieldIndent: string,
-        _context: FormatContext
+        context: FormatContext
     ): string[] {
         if (fields.length === 0) return [];
 
@@ -579,10 +579,12 @@ export class FormatterEngine {
         // Spec: §4.1 - Find longest field name
         let maxNameLength = 0;
         for (const field of fields) {
-            const attrStr = field.attributes.length > 0
-                ? field.attributes.map(a => `@${a.name}${a.arguments.length > 0 ? `(${a.arguments.join(', ')})` : ''}`).join(' ') + ' '
+            if (field.type === ASTNodeType.Comment) continue;
+            const f = field as StructField;
+            const attrStr = f.attributes.length > 0
+                ? f.attributes.map(a => `@${a.name}${a.arguments.length > 0 ? `(${a.arguments.join(', ')})` : ''}`).join(' ') + ' '
                 : '';
-            const nameWithColon = `${attrStr}${field.name}:`;
+            const nameWithColon = `${attrStr}${f.name}:`;
             if (nameWithColon.length > maxNameLength) {
                 maxNameLength = nameWithColon.length;
             }
@@ -592,18 +594,22 @@ export class FormatterEngine {
 
         const lines: string[] = [];
         for (const field of fields) {
-            const attrStr = field.attributes.length > 0
-                ? field.attributes.map(a => `@${a.name}${a.arguments.length > 0 ? `(${a.arguments.join(', ')})` : ''}`).join(' ') + ' '
+            if (field.type === ASTNodeType.Comment) {
+                lines.push(`${fieldIndent}${(field as Comment).text}`);
+                continue;
+            }
+            const f = field as StructField;
+            const attrStr = f.attributes.length > 0
+                ? f.attributes.map(a => `@${a.name}${a.arguments.length > 0 ? `(${a.arguments.join(', ')})` : ''}`).join(' ') + ' '
                 : '';
-            const nameWithColon = `${attrStr}${field.name}:`;
+            const nameWithColon = `${attrStr}${f.name}:`;
             const padding = ' '.repeat(Math.max(1, alignColumn - nameWithColon.length));
-            const line = `${fieldIndent}${nameWithColon}${padding}${field.varType},`;
+            const line = `${fieldIndent}${nameWithColon}${padding}${f.varType},`;
             lines.push(line);
         }
 
         return lines;
     }
-
     // ════════════════════════════════════════════════════════════════
     // VARIABLES (§8.3)
     // ════════════════════════════════════════════════════════════════
@@ -626,9 +632,13 @@ export class FormatterEngine {
         let typePart = varDecl.varType ? `: ${varDecl.varType}` : '';
         let line = `${indent}${keyword} ${varDecl.name}${typePart}`;
 
-        // Storage class: var<uniform>
+        // Storage class: var<uniform>, var<storage, read>, var<storage, read_write>
         if (varDecl.storageClass) {
-            line = `${indent}${keyword}<${varDecl.storageClass}> ${varDecl.name}${typePart}`;
+            if (varDecl.accessMode) {
+                line = `${indent}${keyword}<${varDecl.storageClass}, ${varDecl.accessMode}> ${varDecl.name}${typePart}`;
+            } else {
+                line = `${indent}${keyword}<${varDecl.storageClass}> ${varDecl.name}${typePart}`;
+            }
         }
 
         // Initializer
@@ -747,7 +757,7 @@ export class FormatterEngine {
     }
 
     /**
-     * Format simple statement (return, expression, variableDecl)
+     * Format simple statement (return, expression, variableDecl, comment)
      */
     private formatSimpleStmt(stmt: Statement, context: FormatContext): void {
         switch (stmt.kind) {
@@ -764,6 +774,11 @@ export class FormatterEngine {
                 break;
             case 'assignment':
                 this.formatExpressionStmt(stmt, context);
+                break;
+            case 'comment':
+                if (stmt.comment) {
+                    this.formatComment(stmt.comment, context);
+                }
                 break;
         }
     }
@@ -883,6 +898,8 @@ export class FormatterEngine {
             if (forStmt.initializer.type === ASTNodeType.Statement) {
                 const s = forStmt.initializer as Statement;
                 if (s.kind === 'variableDecl' && s.varDecl) {
+                    const keyword = s.varDecl.keyword || 'var';
+                    initStr = `${keyword} ${s.varDecl.name}: ${s.varDecl.varType}`;
                     initStr = `var ${s.varDecl.name}: ${s.varDecl.varType}`;
                     if (s.varDecl.initializer) {
                         initStr += ` = ${this.formatExpression(s.varDecl.initializer)}`;
@@ -1032,6 +1049,9 @@ export class FormatterEngine {
 
             case 'unary':
                 // Spec: §3.2 - No space after unary operator
+                if (expr.position === 'postfix') {
+                    return `${this.formatExpression(expr.operand!)}${expr.operator}`;
+                }
                 return `${expr.operator}${this.formatExpression(expr.operand!)}`;
 
             case 'call':
