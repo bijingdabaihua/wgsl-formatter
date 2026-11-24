@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext): void {
     // Create output channel for logging
     outputChannel = vscode.window.createOutputChannel('WGSL Formatter');
     context.subscriptions.push(outputChannel);
-    
+
     outputChannel.appendLine('WGSL Formatter extension is now active');
 
     // Create formatter engine and configuration manager
@@ -31,10 +31,7 @@ export function activate(context: vscode.ExtensionContext): void {
     const configManager = new ConfigurationManager();
 
     // Create formatting provider
-    const formattingProvider = new WGSLFormattingProvider(
-        formatterEngine,
-        configManager
-    );
+    const formattingProvider = new WGSLFormattingProvider(formatterEngine, configManager);
 
     // Register document formatting provider for WGSL files
     const documentFormattingDisposable = vscode.languages.registerDocumentFormattingEditProvider(

@@ -8,7 +8,13 @@ import * as vscode from 'vscode';
 import { FormatterEngine, FormatOptions } from './formatter';
 import { ConfigurationManager } from './config';
 import { getOutputChannel } from './extension';
-import { logError, classifyError, getUserFriendlyMessage, showErrorNotification, showWarningNotification } from './errors';
+import {
+    logError,
+    classifyError,
+    getUserFriendlyMessage,
+    showErrorNotification,
+    showWarningNotification,
+} from './errors';
 
 /**
  * Performance thresholds for large file detection
@@ -22,17 +28,13 @@ const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100MB memory limit
  * Provides document and range formatting capabilities for WGSL files
  */
 export class WGSLFormattingProvider
-    implements
-    vscode.DocumentFormattingEditProvider,
-    vscode.DocumentRangeFormattingEditProvider {
+    implements vscode.DocumentFormattingEditProvider, vscode.DocumentRangeFormattingEditProvider
+{
     private formatterEngine: FormatterEngine;
     private configManager: ConfigurationManager;
     private isFormatOnSaveActive: boolean = false;
 
-    constructor(
-        formatterEngine?: FormatterEngine,
-        configManager?: ConfigurationManager
-    ) {
+    constructor(formatterEngine?: FormatterEngine, configManager?: ConfigurationManager) {
         this.formatterEngine = formatterEngine || new FormatterEngine();
         this.configManager = configManager || new ConfigurationManager();
 
@@ -64,7 +66,7 @@ export class WGSLFormattingProvider
     /**
      * Detect if a document is a large file
      * Validates: Requirements 8.3, 8.4
-     * 
+     *
      * @param document The document to check
      * @returns True if the file exceeds size thresholds
      */
@@ -78,7 +80,7 @@ export class WGSLFormattingProvider
     /**
      * Format document with progress indication for large files
      * Validates: Requirements 8.3
-     * 
+     *
      * @param document The document to format
      * @param options Formatting options
      * @param token Cancellation token
@@ -161,7 +163,7 @@ export class WGSLFormattingProvider
     /**
      * Provide formatting edits for an entire document
      * Validates: Requirements 3.1, 7.1, 7.2, 7.3, 8.3
-     * 
+     *
      * @param document The document to format
      * @param options Formatting options from VSCode
      * @param token Cancellation token
@@ -282,11 +284,10 @@ export class WGSLFormattingProvider
         }
     }
 
-
     /**
      * Provide formatting edits for a selected range
      * Validates: Requirements 5.1, 7.1, 7.2, 7.3
-     * 
+     *
      * @param document The document to format
      * @param range The range to format
      * @param options Formatting options from VSCode
@@ -380,7 +381,7 @@ export class WGSLFormattingProvider
     /**
      * Convert VSCode formatting options to formatter options
      * Integrates with ConfigurationManager to get user preferences
-     * 
+     *
      * @param vscodeOptions VSCode formatting options
      * @returns Formatter options
      */

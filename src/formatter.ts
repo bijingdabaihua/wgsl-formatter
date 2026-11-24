@@ -173,7 +173,7 @@ export class FormatterEngine {
             if (parseResult.errors && parseResult.errors.length > 0) {
                 throw new WGSLFormatterError(
                     ErrorType.SyntaxError,
-                    `Parse errors found: ${parseResult.errors.map(e => e.message).join(', ')}`,
+                    `Parse errors found: ${parseResult.errors.map((e) => e.message).join(', ')}`,
                     'FormatterEngine.format'
                 );
             }
@@ -259,7 +259,7 @@ export class FormatterEngine {
             if (parseResult.errors && parseResult.errors.length > 0) {
                 throw new WGSLFormatterError(
                     ErrorType.SyntaxError,
-                    `Parse errors found: ${parseResult.errors.map(e => e.message).join(', ')}`,
+                    `Parse errors found: ${parseResult.errors.map((e) => e.message).join(', ')}`,
                     'FormatterEngine.formatRange'
                 );
             }
@@ -277,20 +277,25 @@ export class FormatterEngine {
             const program = parseResult.ast;
 
             // Find declarations that intersect with the range
-            const declsToFormat: Array<{ decl: TopLevelDecl; startLine: number; endLine: number }> = [];
+            const declsToFormat: Array<{ decl: TopLevelDecl; startLine: number; endLine: number }> =
+                [];
 
             for (const decl of program.declarations) {
                 if (decl.type === ASTNodeType.Comment) continue; // skip standalone comments
 
                 const dStart = decl.start.line - 1; // Convert to 0-indexed
-                let dEnd = decl.end.line - 1;       // Convert to 0-indexed (may point past content)
+                let dEnd = decl.end.line - 1; // Convert to 0-indexed (may point past content)
 
                 // The parser's end position points to the NEXT token after the declaration.
                 // We need to find the actual last content line.
                 while (dEnd > dStart && dEnd >= 0 && dEnd < lines.length) {
                     const trimmed = lines[dEnd].trim();
-                    if (trimmed === '' ||
-                        /^(fn |struct |var |let |const |enable |diagnostic |alias |override |@)/.test(trimmed)) {
+                    if (
+                        trimmed === '' ||
+                        /^(fn |struct |var |let |const |enable |diagnostic |alias |override |@)/.test(
+                            trimmed
+                        )
+                    ) {
                         dEnd--;
                     } else {
                         break;
@@ -464,8 +469,13 @@ export class FormatterEngine {
         this.formatAttributes(func.attributes, indent, context);
 
         // Build parameter strings
-        const paramStrs = func.parameters.map(p => {
-            const paramAttrStr = p.attributes.map(a => `@${a.name}${a.arguments.length > 0 ? `(${a.arguments.join(', ')})` : ''}`).join(' ');
+        const paramStrs = func.parameters.map((p) => {
+            const paramAttrStr = p.attributes
+                .map(
+                    (a) =>
+                        `@${a.name}${a.arguments.length > 0 ? `(${a.arguments.join(', ')})` : ''}`
+                )
+                .join(' ');
             const prefix = paramAttrStr ? paramAttrStr + ' ' : '';
             return `${prefix}${p.name}: ${p.varType}`;
         });
@@ -476,8 +486,10 @@ export class FormatterEngine {
 
         // Check if line wrapping needed
         // Spec: §5.2 - Function signature wrapping
-        if (context.options.enableLineWrapping &&
-            this.lineLength(indent + signature, context) > context.options.maxLineLength) {
+        if (
+            context.options.enableLineWrapping &&
+            this.lineLength(indent + signature, context) > context.options.maxLineLength
+        ) {
             this.formatWrappedFunction(func, paramStrs, indent, indentUnit, context);
             return;
         }
@@ -581,9 +593,15 @@ export class FormatterEngine {
         for (const field of fields) {
             if (field.type === ASTNodeType.Comment) continue;
             const f = field as StructField;
-            const attrStr = f.attributes.length > 0
-                ? f.attributes.map(a => `@${a.name}${a.arguments.length > 0 ? `(${a.arguments.join(', ')})` : ''}`).join(' ') + ' '
-                : '';
+            const attrStr =
+                f.attributes.length > 0
+                    ? f.attributes
+                          .map(
+                              (a) =>
+                                  `@${a.name}${a.arguments.length > 0 ? `(${a.arguments.join(', ')})` : ''}`
+                          )
+                          .join(' ') + ' '
+                    : '';
             const nameWithColon = `${attrStr}${f.name}:`;
             if (nameWithColon.length > maxNameLength) {
                 maxNameLength = nameWithColon.length;
@@ -599,9 +617,15 @@ export class FormatterEngine {
                 continue;
             }
             const f = field as StructField;
-            const attrStr = f.attributes.length > 0
-                ? f.attributes.map(a => `@${a.name}${a.arguments.length > 0 ? `(${a.arguments.join(', ')})` : ''}`).join(' ') + ' '
-                : '';
+            const attrStr =
+                f.attributes.length > 0
+                    ? f.attributes
+                          .map(
+                              (a) =>
+                                  `@${a.name}${a.arguments.length > 0 ? `(${a.arguments.join(', ')})` : ''}`
+                          )
+                          .join(' ') + ' '
+                    : '';
             const nameWithColon = `${attrStr}${f.name}:`;
             const padding = ' '.repeat(Math.max(1, alignColumn - nameWithColon.length));
             const line = `${fieldIndent}${nameWithColon}${padding}${f.varType},`;
@@ -629,7 +653,7 @@ export class FormatterEngine {
         this.formatAttributes(varDecl.attributes, indent, context);
 
         // Build: var name: type (or let name when type is inferred)
-        let typePart = varDecl.varType ? `: ${varDecl.varType}` : '';
+        const typePart = varDecl.varType ? `: ${varDecl.varType}` : '';
         let line = `${indent}${keyword} ${varDecl.name}${typePart}`;
 
         // Storage class: var<uniform>, var<storage, read>, var<storage, read_write>
@@ -651,8 +675,10 @@ export class FormatterEngine {
         line += ';';
 
         // Check if line wrapping needed
-        if (context.options.enableLineWrapping &&
-            this.lineLength(line, context) > context.options.maxLineLength) {
+        if (
+            context.options.enableLineWrapping &&
+            this.lineLength(line, context) > context.options.maxLineLength
+        ) {
             // For now, just keep as-is if it's a simple var with long initializer
             // TODO: implement proper wrapping for variable declarations
         }
@@ -725,7 +751,15 @@ export class FormatterEngine {
      * Format a statement
      */
     private formatStatement(
-        stmt: Statement | IfStmt | ForStmt | WhileStmt | LoopStmt | SwitchStmt | BreakStmt | ContinueStmt,
+        stmt:
+            | Statement
+            | IfStmt
+            | ForStmt
+            | WhileStmt
+            | LoopStmt
+            | SwitchStmt
+            | BreakStmt
+            | ContinueStmt,
         context: FormatContext
     ): void {
         switch (stmt.type) {
@@ -970,7 +1004,7 @@ export class FormatterEngine {
         if (caseStmt.selectors.length === 0) {
             context.output.push(`${indent}default: {`);
         } else {
-            const selectors = caseStmt.selectors.map(s => String(s)).join(', ');
+            const selectors = caseStmt.selectors.map((s) => String(s)).join(', ');
             context.output.push(`${indent}case ${selectors}: {`);
         }
 
@@ -1031,7 +1065,11 @@ export class FormatterEngine {
                 if (typeof expr.value === 'number' && !Number.isInteger(expr.value)) {
                     return value;
                 }
-                if (typeof expr.value === 'number' && Number.isInteger(expr.value) && !value.includes('.')) {
+                if (
+                    typeof expr.value === 'number' &&
+                    Number.isInteger(expr.value) &&
+                    !value.includes('.')
+                ) {
                     // Check if it has a suffix
                     if (/^[0-9]+[fui]$/.test(value)) return value;
                     // Keep integers as-is (not all numbers in WGSL need .0)
@@ -1096,8 +1134,7 @@ export class FormatterEngine {
      */
     private formatCallExpr(expr: Expression, context?: FormatContext): string {
         const callee = expr.callee || '';
-        const args = (expr.arguments || [])
-            .map(arg => this.formatExpression(arg));
+        const args = (expr.arguments || []).map((arg) => this.formatExpression(arg));
 
         // Build single-line version
         const singleLine = `${callee}(${args.join(', ')})`;
@@ -1159,8 +1196,9 @@ export class FormatterEngine {
      * Spec: §11.4 - No trailing whitespace
      */
     private removeTrailingWhitespace(text: string): string {
-        return text.split('\n')
-            .map(line => line.replace(/[ \t]+$/, ''))
+        return text
+            .split('\n')
+            .map((line) => line.replace(/[ \t]+$/, ''))
             .join('\n');
     }
 

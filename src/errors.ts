@@ -42,7 +42,7 @@ export class WGSLFormatterError extends Error {
 /**
  * Log error to output channel
  * Validates: Requirements 1.4, 7.1, 7.2
- * 
+ *
  * @param error The error to log
  * @param outputChannel The VSCode output channel
  * @param context Additional context about where the error occurred
@@ -85,7 +85,7 @@ export function logError(
 /**
  * Show error message to user with option to view details
  * Validates: Requirements 1.4, 7.1, 7.2
- * 
+ *
  * @param message The error message to display
  * @param outputChannel The output channel to show when user clicks "View Details"
  */
@@ -93,10 +93,7 @@ export async function showErrorNotification(
     message: string,
     outputChannel?: vscode.OutputChannel
 ): Promise<void> {
-    const action = await vscode.window.showErrorMessage(
-        message,
-        'View Details'
-    );
+    const action = await vscode.window.showErrorMessage(message, 'View Details');
 
     if (action === 'View Details' && outputChannel) {
         outputChannel.show();
@@ -106,7 +103,7 @@ export async function showErrorNotification(
 /**
  * Show warning message to user with option to view details
  * Validates: Requirements 1.4, 7.1, 7.2
- * 
+ *
  * @param message The warning message to display
  * @param outputChannel The output channel to show when user clicks "View Details"
  */
@@ -114,10 +111,7 @@ export async function showWarningNotification(
     message: string,
     outputChannel?: vscode.OutputChannel
 ): Promise<void> {
-    const action = await vscode.window.showWarningMessage(
-        message,
-        'View Details'
-    );
+    const action = await vscode.window.showWarningMessage(message, 'View Details');
 
     if (action === 'View Details' && outputChannel) {
         outputChannel.show();
@@ -126,7 +120,7 @@ export async function showWarningNotification(
 
 /**
  * Classify an error into one of the defined error types
- * 
+ *
  * @param error The error to classify
  * @returns The error type
  */
@@ -144,7 +138,11 @@ export function classifyError(error: Error | unknown): ErrorType {
         }
 
         // Check for syntax errors
-        if (message.includes('syntax') || message.includes('parse') || message.includes('unexpected token')) {
+        if (
+            message.includes('syntax') ||
+            message.includes('parse') ||
+            message.includes('unexpected token')
+        ) {
             return ErrorType.SyntaxError;
         }
 
@@ -154,7 +152,11 @@ export function classifyError(error: Error | unknown): ErrorType {
         }
 
         // Check for system errors
-        if (message.includes('enoent') || message.includes('eacces') || message.includes('memory')) {
+        if (
+            message.includes('enoent') ||
+            message.includes('eacces') ||
+            message.includes('memory')
+        ) {
             return ErrorType.SystemError;
         }
     }
@@ -165,7 +167,7 @@ export function classifyError(error: Error | unknown): ErrorType {
 
 /**
  * Get user-friendly error message based on error type
- * 
+ *
  * @param errorType The error type
  * @param originalMessage The original error message
  * @returns User-friendly error message

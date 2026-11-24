@@ -9,9 +9,9 @@
  * Position information in source code
  */
 export interface Position {
-    line: number;      // 1-based line number
-    column: number;    // 0-based column number
-    offset: number;    // 0-based character offset from start of file
+    line: number; // 1-based line number
+    column: number; // 0-based column number
+    offset: number; // 0-based character offset from start of file
 }
 
 /**
@@ -110,9 +110,9 @@ export interface VariableDecl extends ASTNode {
     type: ASTNodeType.VariableDecl;
     name: string;
     varType: string;
-    keyword?: string;       // 'var', 'let', or 'const'
-    storageClass?: string;  // <uniform>, <storage>, <function>, <private>, <workgroup>
-    accessMode?: string;    // 'read', 'write', 'read_write' (for var<storage, accessMode>)
+    keyword?: string; // 'var', 'let', or 'const'
+    storageClass?: string; // <uniform>, <storage>, <function>, <private>, <workgroup>
+    accessMode?: string; // 'read', 'write', 'read_write' (for var<storage, accessMode>)
     initializer: Expression | null;
     attributes: Attribute[];
 }
@@ -132,8 +132,8 @@ export interface EnableDirective extends ASTNode {
  */
 export interface DiagnosticDirective extends ASTNode {
     type: ASTNodeType.DiagnosticDirective;
-    severity: string;       // off, warning, error
-    ruleName: string;       // e.g. derivative_uniformity
+    severity: string; // off, warning, error
+    ruleName: string; // e.g. derivative_uniformity
 }
 
 /**
@@ -256,11 +256,11 @@ export interface Expression extends ASTNode {
         | 'binary'
         | 'unary'
         | 'call'
-        | 'memberAccess'    // a.b
-        | 'indexAccess'     // a[i]
-        | 'bitwiseNot'      // ~
+        | 'memberAccess' // a.b
+        | 'indexAccess' // a[i]
+        | 'bitwiseNot' // ~
         | 'cast'
-        | 'parenthesized';  // (expr) — preserves grouping for ! and precedence
+        | 'parenthesized'; // (expr) — preserves grouping for ! and precedence
     value?: string | number | boolean;
     operator?: string;
     position?: 'prefix' | 'postfix';
@@ -269,10 +269,10 @@ export interface Expression extends ASTNode {
     operand?: Expression;
     callee?: string;
     arguments?: Expression[];
-    object?: Expression;    // for memberAccess: the lhs
-    member?: string;        // for memberAccess: the property name
-    index?: Expression;     // for indexAccess: the index expression
-    castType?: string;      // for type casts
+    object?: Expression; // for memberAccess: the lhs
+    member?: string; // for memberAccess: the property name
+    index?: Expression; // for indexAccess: the index expression
+    castType?: string; // for type casts
 }
 
 /**

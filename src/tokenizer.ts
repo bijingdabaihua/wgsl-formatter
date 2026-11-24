@@ -264,9 +264,7 @@ export class TokenStream {
 
     private createEOFToken(): Token {
         const lastToken = this.tokens[this.tokens.length - 1];
-        const pos: Position = lastToken
-            ? { ...lastToken.end }
-            : { line: 1, column: 0, offset: 0 };
+        const pos: Position = lastToken ? { ...lastToken.end } : { line: 1, column: 0, offset: 0 };
         return {
             type: TokenType.EOF,
             value: '',
@@ -458,13 +456,22 @@ export class Tokenizer {
         // Two-character operators (longest first)
         // Shift left equal
         if (ch === '<' && next === '<' && this.peekNextNext() === '=') {
-            this.advance(); this.advance(); this.advance();
+            this.advance();
+            this.advance();
+            this.advance();
             return { type: TokenType.ShiftLeftEqual, value: '<<=', start, end: this.getPosition() };
         }
         // Shift right equal
         if (ch === '>' && next === '>' && this.peekNextNext() === '=') {
-            this.advance(); this.advance(); this.advance();
-            return { type: TokenType.ShiftRightEqual, value: '>>=', start, end: this.getPosition() };
+            this.advance();
+            this.advance();
+            this.advance();
+            return {
+                type: TokenType.ShiftRightEqual,
+                value: '>>=',
+                start,
+                end: this.getPosition(),
+            };
         }
 
         // Two-character operators
@@ -524,7 +531,7 @@ export class Tokenizer {
             ',': TokenType.Comma,
             '.': TokenType.Dot,
             '@': TokenType.At,
-            '_': TokenType.Underscore,
+            _: TokenType.Underscore,
         };
 
         const type = tokenMap[ch];

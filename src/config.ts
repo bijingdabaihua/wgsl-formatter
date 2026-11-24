@@ -54,7 +54,7 @@ export class ConfigurationManager {
     /**
      * Register a callback for configuration changes
      * Validates: Requirement 9.3
-     * 
+     *
      * @param callback Function to call when configuration changes
      * @returns Disposable to unregister the callback
      */

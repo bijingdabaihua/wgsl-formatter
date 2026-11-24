@@ -30,7 +30,7 @@ const testsDir = __dirname;
 
 // Collect all .in.wgsl files (excluding prism/ subdir)
 const inFiles = readdirSync(testsDir)
-    .filter(f => f.endsWith('.in.wgsl'))
+    .filter((f) => f.endsWith('.in.wgsl'))
     .sort();
 
 describe('Formatter pair tests', () => {

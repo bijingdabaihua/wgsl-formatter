@@ -105,9 +105,8 @@ export class WGSLParser {
             }
         }
 
-        const end: Position = declarations.length > 0
-            ? declarations[declarations.length - 1].end
-            : start;
+        const end: Position =
+            declarations.length > 0 ? declarations[declarations.length - 1].end : start;
 
         return {
             type: ASTNodeType.Program,
@@ -156,9 +155,11 @@ export class WGSLParser {
         }
 
         // Variable declarations (var, let, const)
-        if (this.stream.match(TokenType.Var) ||
+        if (
+            this.stream.match(TokenType.Var) ||
             this.stream.match(TokenType.Let) ||
-            this.stream.match(TokenType.Const)) {
+            this.stream.match(TokenType.Const)
+        ) {
             return this.parseVarDecl(attributes);
         }
 
@@ -303,14 +304,14 @@ export class WGSLParser {
         if (this.stream.match(TokenType.Arrow)) {
             this.stream.next();
             // Skip any return type attributes
-            let returnTypeParts: string[] = [];
+            const returnTypeParts: string[] = [];
             while (this.stream.match(TokenType.At)) {
                 this.stream.next(); // @
                 const attrName = this.stream.next().value; // e.g. builtin
                 returnTypeParts.push(`@${attrName}`);
                 if (this.stream.match(TokenType.LeftParen)) {
                     this.stream.next();
-                    let args: string[] = [];
+                    const args: string[] = [];
                     while (!this.stream.match(TokenType.RightParen) && !this.stream.isEOF()) {
                         args.push(this.stream.next().value);
                         if (this.stream.match(TokenType.Comma)) this.stream.next();
@@ -474,7 +475,10 @@ export class WGSLParser {
             // Check for access mode: <storage, read>
             if (this.stream.match(TokenType.Comma)) {
                 this.stream.next(); // consume ,
-                const accessToken = this.expect(TokenType.Identifier, 'Expected access mode (read, write, read_write)');
+                const accessToken = this.expect(
+                    TokenType.Identifier,
+                    'Expected access mode (read, write, read_write)'
+                );
                 accessMode = accessToken?.value;
             }
             this.expect(TokenType.Greater, 'Expected >');
@@ -556,7 +560,16 @@ export class WGSLParser {
     /**
      * Parse a single statement
      */
-    private parseStatement(): Statement | IfStmt | ForStmt | WhileStmt | LoopStmt | SwitchStmt | BreakStmt | ContinueStmt | null {
+    private parseStatement():
+        | Statement
+        | IfStmt
+        | ForStmt
+        | WhileStmt
+        | LoopStmt
+        | SwitchStmt
+        | BreakStmt
+        | ContinueStmt
+        | null {
         // If/else statement
         if (this.stream.match(TokenType.If)) {
             return this.parseIfStmt();
@@ -598,9 +611,11 @@ export class WGSLParser {
         }
 
         // Variable declaration as statement
-        if (this.stream.match(TokenType.Var) ||
+        if (
+            this.stream.match(TokenType.Var) ||
             this.stream.match(TokenType.Let) ||
-            this.stream.match(TokenType.Const)) {
+            this.stream.match(TokenType.Const)
+        ) {
             const varDecl = this.parseVarDecl([]);
             return {
                 type: ASTNodeType.Statement,
@@ -671,7 +686,11 @@ export class WGSLParser {
         // Initializer (reuse standard var decl - it consumes the trailing ;)
         let initializer: Statement | null = null;
         if (!this.stream.match(TokenType.Semicolon)) {
-            if (this.stream.match(TokenType.Var) || this.stream.match(TokenType.Let) || this.stream.match(TokenType.Const)) {
+            if (
+                this.stream.match(TokenType.Var) ||
+                this.stream.match(TokenType.Let) ||
+                this.stream.match(TokenType.Const)
+            ) {
                 const varDecl = this.parseVarDecl([]);
                 initializer = {
                     type: ASTNodeType.Statement,
@@ -981,13 +1000,20 @@ export class WGSLParser {
         const left = this.parseLogicalOrExpression();
 
         const assignOps = [
-            TokenType.Equal, TokenType.PlusEqual, TokenType.MinusEqual,
-            TokenType.StarEqual, TokenType.SlashEqual, TokenType.PercentEqual,
-            TokenType.AndEqual, TokenType.OrEqual, TokenType.XorEqual,
-            TokenType.ShiftLeftEqual, TokenType.ShiftRightEqual,
+            TokenType.Equal,
+            TokenType.PlusEqual,
+            TokenType.MinusEqual,
+            TokenType.StarEqual,
+            TokenType.SlashEqual,
+            TokenType.PercentEqual,
+            TokenType.AndEqual,
+            TokenType.OrEqual,
+            TokenType.XorEqual,
+            TokenType.ShiftLeftEqual,
+            TokenType.ShiftRightEqual,
         ];
 
-        if (assignOps.some(op => this.stream.match(op))) {
+        if (assignOps.some((op) => this.stream.match(op))) {
             const start = left.start;
             const operator = this.stream.next().value;
             const right = this.parseAssignmentExpression();
@@ -1184,11 +1210,13 @@ export class WGSLParser {
         let left = this.parseShiftExpression();
 
         const relOps = [
-            TokenType.Less, TokenType.LessEqual,
-            TokenType.Greater, TokenType.GreaterEqual,
+            TokenType.Less,
+            TokenType.LessEqual,
+            TokenType.Greater,
+            TokenType.GreaterEqual,
         ];
 
-        while (relOps.some(op => this.stream.match(op))) {
+        while (relOps.some((op) => this.stream.match(op))) {
             const start = left.start;
             const operator = this.stream.next().value;
             const right = this.parseShiftExpression();
@@ -1272,9 +1300,11 @@ export class WGSLParser {
     private parseMultiplicativeExpression(): Expression {
         let left = this.parseUnaryExpression();
 
-        while (this.stream.match(TokenType.Star) ||
-               this.stream.match(TokenType.Slash) ||
-               this.stream.match(TokenType.Percent)) {
+        while (
+            this.stream.match(TokenType.Star) ||
+            this.stream.match(TokenType.Slash) ||
+            this.stream.match(TokenType.Percent)
+        ) {
             const start = left.start;
             const operator = this.stream.next().value;
             const right = this.parseUnaryExpression();
@@ -1302,12 +1332,17 @@ export class WGSLParser {
      */
     private parseUnaryExpression(): Expression {
         const unaryOps = [
-            TokenType.Not, TokenType.Minus, TokenType.BitwiseNot,
-            TokenType.Star, TokenType.BitwiseAnd, TokenType.Plus,
-            TokenType.PlusPlus, TokenType.MinusMinus,
+            TokenType.Not,
+            TokenType.Minus,
+            TokenType.BitwiseNot,
+            TokenType.Star,
+            TokenType.BitwiseAnd,
+            TokenType.Plus,
+            TokenType.PlusPlus,
+            TokenType.MinusMinus,
         ];
 
-        if (unaryOps.some(op => this.stream.match(op))) {
+        if (unaryOps.some((op) => this.stream.match(op))) {
             const start = this.stream.peek().start;
             const operator = this.stream.next().value;
             const operand = this.parseUnaryExpression();
@@ -1661,14 +1696,26 @@ export class WGSLParser {
      * Check if token type is a WGSL type keyword
      */
     private isTypeKeyword(type: TokenType): boolean {
-        return type === TokenType.Vec2 || type === TokenType.Vec3 || type === TokenType.Vec4 ||
-            type === TokenType.Mat2x2 || type === TokenType.Mat3x3 || type === TokenType.Mat4x4 ||
-            type === TokenType.F32 || type === TokenType.I32 || type === TokenType.U32 ||
-            type === TokenType.Bool || type === TokenType.F16 ||
+        return (
+            type === TokenType.Vec2 ||
+            type === TokenType.Vec3 ||
+            type === TokenType.Vec4 ||
+            type === TokenType.Mat2x2 ||
+            type === TokenType.Mat3x3 ||
+            type === TokenType.Mat4x4 ||
+            type === TokenType.F32 ||
+            type === TokenType.I32 ||
+            type === TokenType.U32 ||
+            type === TokenType.Bool ||
+            type === TokenType.F16 ||
             type === TokenType.Array ||
-            type === TokenType.Mat2x3 || type === TokenType.Mat2x4 ||
-            type === TokenType.Mat3x2 || type === TokenType.Mat3x4 ||
-            type === TokenType.Mat4x2 || type === TokenType.Mat4x3;
+            type === TokenType.Mat2x3 ||
+            type === TokenType.Mat2x4 ||
+            type === TokenType.Mat3x2 ||
+            type === TokenType.Mat3x4 ||
+            type === TokenType.Mat4x2 ||
+            type === TokenType.Mat4x3
+        );
     }
 
     // ─── Types ────────────────────────────────────────────────────
@@ -1680,11 +1727,13 @@ export class WGSLParser {
      */
     private parseType(): string {
         // Handle prefix type keywords
-        if (this.stream.match(TokenType.Ptr) ||
+        if (
+            this.stream.match(TokenType.Ptr) ||
             this.stream.match(TokenType.Atomic) ||
             this.stream.match(TokenType.Array) ||
             this.stream.match(TokenType.Sampler) ||
-            this.stream.match(TokenType.SamplerComparison)) {
+            this.stream.match(TokenType.SamplerComparison)
+        ) {
             const baseType = this.stream.next().value;
 
             // Generic parameters
@@ -1878,7 +1927,8 @@ export class WGSLParser {
     private skipToNextDecl(): void {
         while (!this.stream.isEOF()) {
             const token = this.stream.peek();
-            if (token.type === TokenType.Fn ||
+            if (
+                token.type === TokenType.Fn ||
                 token.type === TokenType.Struct ||
                 token.type === TokenType.Var ||
                 token.type === TokenType.Let ||
@@ -1886,7 +1936,8 @@ export class WGSLParser {
                 token.type === TokenType.Enable ||
                 token.type === TokenType.Diagnostic ||
                 token.type === TokenType.Alias ||
-                token.type === TokenType.Override) {
+                token.type === TokenType.Override
+            ) {
                 break;
             }
             this.stream.next();
