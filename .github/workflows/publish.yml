@@ -1,13 +1,17 @@
 name: Publish to Marketplace
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*.*.*'
 
 jobs:
   publish:
     name: Publish to VSCode Marketplace
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout code
@@ -16,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '22.x'
           cache: 'npm'
 
       - name: Install dependencies
@@ -24,9 +28,6 @@ jobs:
 
       - name: Run tests
         run: npm test
-
-      - name: Build extension
-        run: npm run build
 
       - name: Get version from tag
         id: get_version
@@ -45,10 +46,11 @@ jobs:
           fi
           echo "✅ 版本验证通过: $PACKAGE_VERSION"
 
+      - name: Build and package extension
+        run: npm run package
+
       - name: Publish to VSCode Marketplace
-        run: npx vsce publish --packagePath ./wgsl-formatter-${{ steps.get_version.outputs.VERSION }}.vsix
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx vsce publish --oidc --packagePath ./wgsl-formatter-${{ steps.get_version.outputs.VERSION }}.vsix
 
       - name: Publish success notification
         if: success()

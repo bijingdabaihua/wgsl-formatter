@@ -1473,12 +1473,20 @@ export class WGSLParser {
     private parsePrimaryExpression(): Expression {
         const start = this.stream.peek().start;
 
-        // Parenthesized expression
+        // Parenthesized expression — preserve grouping in AST
         if (this.stream.match(TokenType.LeftParen)) {
             this.stream.next();
             const expr = this.parseExpression();
+            const end = this.stream.peek().start;
             this.expect(TokenType.RightParen, 'Expected )');
-            return expr;
+            return {
+                type: ASTNodeType.Expression,
+                start,
+                end,
+                children: [expr],
+                kind: 'parenthesized',
+                operand: expr,
+            };
         }
 
         // Number literal (including .5 style)

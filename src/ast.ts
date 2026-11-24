@@ -259,7 +259,8 @@ export interface Expression extends ASTNode {
         | 'memberAccess'    // a.b
         | 'indexAccess'     // a[i]
         | 'bitwiseNot'      // ~
-        | 'cast';
+        | 'cast'
+        | 'parenthesized';  // (expr) — preserves grouping for ! and precedence
     value?: string | number | boolean;
     operator?: string;
     position?: 'prefix' | 'postfix';

@@ -571,7 +571,7 @@ export class FormatterEngine {
     private formatStructFields(
         fields: (StructField | Comment)[],
         fieldIndent: string,
-        context: FormatContext
+        _context: FormatContext
     ): string[] {
         if (fields.length === 0) return [];
 
@@ -643,7 +643,7 @@ export class FormatterEngine {
 
         // Initializer
         if (varDecl.initializer) {
-            const initExpr = this.formatExpression(varDecl.initializer);
+            const initExpr = this.formatExpression(varDecl.initializer, context);
             // Spec: §3.1 - Spaces around =
             line += ` = ${initExpr}`;
         }
@@ -709,7 +709,7 @@ export class FormatterEngine {
         }
 
         if (over.initializer) {
-            const initExpr = this.formatExpression(over.initializer);
+            const initExpr = this.formatExpression(over.initializer, context);
             line += ` = ${initExpr}`;
         }
 
@@ -790,7 +790,7 @@ export class FormatterEngine {
     private formatReturnStmt(stmt: Statement, context: FormatContext): void {
         const indent = this.getIndent(context);
         if (stmt.expression) {
-            const expr = this.formatExpression(stmt.expression);
+            const expr = this.formatExpression(stmt.expression, context);
             // Spec: §3.7 - Space after return keyword
             context.output.push(`${indent}return ${expr};`);
         } else {
@@ -804,7 +804,7 @@ export class FormatterEngine {
     private formatExpressionStmt(stmt: Statement, context: FormatContext): void {
         const indent = this.getIndent(context);
         if (stmt.expression) {
-            const expr = this.formatExpression(stmt.expression);
+            const expr = this.formatExpression(stmt.expression, context);
             context.output.push(`${indent}${expr};`);
         }
     }
@@ -815,7 +815,7 @@ export class FormatterEngine {
      */
     private formatIfStmt(ifStmt: IfStmt, context: FormatContext, isElseIf: boolean = false): void {
         const indent = this.getIndent(context);
-        const condition = this.formatExpression(ifStmt.condition);
+        const condition = this.formatExpression(ifStmt.condition, context);
 
         if (isElseIf) {
             // For else if, the `else ` prefix is already on the current line
@@ -834,7 +834,7 @@ export class FormatterEngine {
             if (Array.isArray(elseBody) && elseBody.length === 1 && 'condition' in elseBody[0]) {
                 // else if - inline on same line: `} else if (cond) {`
                 const innerIf = elseBody[0] as unknown as IfStmt;
-                const innerCond = this.formatExpression(innerIf.condition);
+                const innerCond = this.formatExpression(innerIf.condition, context);
                 context.output.push(`${indent}} else if (${innerCond}) {`);
                 this.formatBlockBody(innerIf.thenBody, context);
                 // Handle further else/else-if recursively
@@ -866,7 +866,7 @@ export class FormatterEngine {
         if (Array.isArray(elseBody)) {
             if (elseBody.length === 1 && 'condition' in elseBody[0]) {
                 const innerIf = elseBody[0] as unknown as IfStmt;
-                const innerCond = this.formatExpression(innerIf.condition);
+                const innerCond = this.formatExpression(innerIf.condition, context);
                 context.output.push(`${indent}} else if (${innerCond}) {`);
                 this.formatBlockBody(innerIf.thenBody, context);
                 if (innerIf.elseBody) {
@@ -902,16 +902,16 @@ export class FormatterEngine {
                     initStr = `${keyword} ${s.varDecl.name}: ${s.varDecl.varType}`;
                     initStr = `var ${s.varDecl.name}: ${s.varDecl.varType}`;
                     if (s.varDecl.initializer) {
-                        initStr += ` = ${this.formatExpression(s.varDecl.initializer)}`;
+                        initStr += ` = ${this.formatExpression(s.varDecl.initializer, context)}`;
                     }
                 } else if (s.expression) {
-                    initStr = this.formatExpression(s.expression);
+                    initStr = this.formatExpression(s.expression, context);
                 }
             }
         }
 
-        const condStr = forStmt.condition ? this.formatExpression(forStmt.condition) : '';
-        const incStr = forStmt.increment ? this.formatExpression(forStmt.increment) : '';
+        const condStr = forStmt.condition ? this.formatExpression(forStmt.condition, context) : '';
+        const incStr = forStmt.increment ? this.formatExpression(forStmt.increment, context) : '';
 
         context.output.push(`${indent}for (${initStr}; ${condStr}; ${incStr}) {`);
         this.formatBlockBody(forStmt.body, context);
@@ -924,7 +924,7 @@ export class FormatterEngine {
      */
     private formatWhileStmt(whileStmt: WhileStmt, context: FormatContext): void {
         const indent = this.getIndent(context);
-        const condition = this.formatExpression(whileStmt.condition);
+        const condition = this.formatExpression(whileStmt.condition, context);
 
         context.output.push(`${indent}while (${condition}) {`);
         this.formatBlockBody(whileStmt.body, context);
@@ -947,7 +947,7 @@ export class FormatterEngine {
      */
     private formatSwitchStmt(switchStmt: SwitchStmt, context: FormatContext): void {
         const indent = this.getIndent(context);
-        const condition = this.formatExpression(switchStmt.condition);
+        const condition = this.formatExpression(switchStmt.condition, context);
 
         context.output.push(`${indent}switch (${condition}) {`);
         context.indentLevel++;
@@ -1019,7 +1019,7 @@ export class FormatterEngine {
      * Spec: §3 - All spacing rules
      * Spec: §10.3 - Operator precedence
      */
-    private formatExpression(expr: Expression): string {
+    private formatExpression(expr: Expression, context?: FormatContext): string {
         switch (expr.kind) {
             case 'literal': {
                 const value = String(expr.value ?? '');
@@ -1056,7 +1056,11 @@ export class FormatterEngine {
 
             case 'call':
                 // Spec: §3.8 - No space before (, space after comma
-                return this.formatCallExpr(expr);
+                return this.formatCallExpr(expr, context);
+
+            case 'parenthesized':
+                // Preserve grouping: (expr)
+                return `(${this.formatExpression(expr.operand!)})`;
 
             case 'memberAccess':
                 // a.b
@@ -1088,14 +1092,29 @@ export class FormatterEngine {
     /**
      * Format function call expression
      * Spec: §3.8 - No space between callee and (, space after comma
+     * Spec: §5.4 - Wrap long call arguments when line exceeds maxLineLength
      */
-    private formatCallExpr(expr: Expression): string {
+    private formatCallExpr(expr: Expression, context?: FormatContext): string {
         const callee = expr.callee || '';
         const args = (expr.arguments || [])
-            .map(arg => this.formatExpression(arg))
-            .join(', ');  // Spec: §3.3 - Space after comma
+            .map(arg => this.formatExpression(arg));
 
-        return `${callee}(${args})`;  // Spec: §3.8 - No space before (
+        // Build single-line version
+        const singleLine = `${callee}(${args.join(', ')})`;
+
+        // Check if wrapping is needed
+        if (context && context.options.enableLineWrapping) {
+            const baseIndent = this.getIndent(context);
+            const estimatedLineLen = baseIndent.length + singleLine.length;
+            // Also account for prefix like "return " — use a conservative threshold
+            if (estimatedLineLen > context.options.maxLineLength - 20) {
+                const argIndent = baseIndent + this.getIndentUnit(context);
+                const wrappedArgs = args.join(`,\n${argIndent}`);
+                return `${callee}(\n${argIndent}${wrappedArgs}\n${baseIndent})`;
+            }
+        }
+
+        return singleLine;
     }
 
     // ════════════════════════════════════════════════════════════════

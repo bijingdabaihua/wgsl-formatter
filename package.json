@@ -2,7 +2,7 @@
   "name": "wgsl-formatter",
   "displayName": "WGSL Formatter",
   "description": "Intelligent code formatter for WebGPU Shading Language (WGSL) with automatic indentation, spacing, alignment, and line wrapping",
-  "version": "0.1.2",
+  "version": "0.1.6",
   "publisher": "wgsl-tools",
   "author": {
     "name": "WGSL Formatter Team"
@@ -116,7 +116,7 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitest/coverage-v8": "^1.0.0",
-    "@vscode/vsce": "^2.32.0",
+    "@vscode/vsce": "^4.1.1",
     "esbuild": "^0.19.0",
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^9.0.0",
@@ -125,5 +125,6 @@
     "rimraf": "^5.0.0",
     "typescript": "^5.3.0",
     "vitest": "^1.0.0"
-  }
+  },
+  "icon": "icon.png"
 }

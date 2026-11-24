@@ -26,7 +26,7 @@ const defaultOptions = {
 };
 
 const prismDir = join(__dirname, 'prism');
-const files = readdirSync(prismDir).filter(f => f.endsWith('.wgsl'));
+const files = readdirSync(prismDir).filter(f => f.endsWith('.wgsl') && !f.endsWith('.out.wgsl'));
 
 describe('Prism WGSL batch format test', () => {
     for (const file of files) {

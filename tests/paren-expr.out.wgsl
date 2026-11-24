@@ -1,3 +1,3 @@
 fn main() {
-    var r: f32 = a + b * c;
+    var r: f32 = (a + b) * c;
 }
