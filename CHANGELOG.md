@@ -7,6 +7,11 @@
 ### Added
 - 基础 WGSL 格式化功能
 
+## [0.1.7] - 2026-11-24
+
+### Fixed
+- 修复 `for` 初始化变量省略类型时输出空类型注解的问题。
+
 ## [0.1.6] - 2026-11-24
 
 ### Added
@@ -31,7 +36,8 @@
 - 基础语法高亮
 - 格式化引擎原型
 
-[Unreleased]: https://github.com/bijingdabaihua/wgsl-formatter/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/bijingdabaihua/wgsl-formatter/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/bijingdabaihua/wgsl-formatter/releases/tag/v0.1.7
 [0.1.6]: https://github.com/bijingdabaihua/wgsl-formatter/releases/tag/v0.1.6
 [0.1.1]: https://github.com/bijingdabaihua/wgsl-formatter/releases/tag/v0.1.1
 [0.1.0]: https://github.com/bijingdabaihua/wgsl-formatter/releases/tag/v0.1.0

@@ -932,9 +932,9 @@ export class FormatterEngine {
             if (forStmt.initializer.type === ASTNodeType.Statement) {
                 const s = forStmt.initializer as Statement;
                 if (s.kind === 'variableDecl' && s.varDecl) {
-                    const keyword = s.varDecl.keyword || 'var';
-                    initStr = `${keyword} ${s.varDecl.name}: ${s.varDecl.varType}`;
-                    initStr = `var ${s.varDecl.name}: ${s.varDecl.varType}`;
+                    const keyword = this.detectVarKeyword(s.varDecl);
+                    const typePart = s.varDecl.varType ? `: ${s.varDecl.varType}` : '';
+                    initStr = `${keyword} ${s.varDecl.name}${typePart}`;
                     if (s.varDecl.initializer) {
                         initStr += ` = ${this.formatExpression(s.varDecl.initializer, context)}`;
                     }
